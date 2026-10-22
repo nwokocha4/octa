@@ -1,0 +1,91 @@
+{
+  "seed": 20261021,
+  "generated_utc": "2026-10-22T19:47:53Z",
+  "grid": {
+    "N": 48,
+    "L": 20.0,
+    "dx": 0.4166666666666667
+  },
+  "model": {
+    "kappa": 0.125,
+    "M0": 1.0,
+    "f_coeffs": [
+      0.0,
+      0.0,
+      0.25,
+      -0.5,
+      0.25
+    ],
+    "dt": 0.0009419005594135805,
+    "scheme": "explicit RK2, conservative face-flux finite volume"
+  },
+  "mobility": {
+    "K": 9,
+    "sigma_theta": 0.22,
+    "modes": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        2
+      ]
+    ]
+  },
+  "times": {
+    "obs": [
+      2.0,
+      6.0,
+      10.0,
+      14.0
+    ],
+    "pred": [
+      17.0,
+      20.0,
+      23.0
+    ]
+  },
+  "observation": {
+    "sensor_grid": 18,
+    "n_sensors": 201,
+    "blur_sigma": 1.0,
+    "noise_floor": 0.001,
+    "noise_shot": 4e-05,
+    "noise_correlation_length": 1.6
+  },
+  "diagnostics": {
+    "mass_drift_relative": 1.5019123595268284e-16,
+    "energy_balance_residual": 6.28475580699518e-10,
+    "free_energy_change": -0.2505266573552447,
+    "dissipation": 0.2505266571977948
+  }
+}

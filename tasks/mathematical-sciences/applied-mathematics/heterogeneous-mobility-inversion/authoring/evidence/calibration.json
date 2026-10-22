@@ -1,0 +1,80 @@
+{
+  "dof": 603,
+  "candidates": {
+    "truth": {
+      "theta": [
+        -0.6382272176514099,
+        0.0,
+        -0.42160636565476156,
+        -0.40433395219795265,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "chi2_total": 588.0825548034719,
+      "chi2_per_dof": 0.9752612849145471,
+      "snapshot_mass_drift": 3.003824719053656e-16,
+      "snapshot_energy_residual": 0.0028527698419707147,
+      "note": "the generating coefficients"
+    },
+    "constant_mobility": {
+      "theta": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "chi2_total": 1009486.3916890445,
+      "chi2_per_dof": 1674.1067855539711,
+      "snapshot_mass_drift": 0.0,
+      "snapshot_energy_residual": 0.004108980812865782,
+      "note": "the trivial null: theta = 0"
+    },
+    "scaled_M": {
+      "theta": [
+        -0.5105817741211279,
+        0.0,
+        -0.3372850925238093,
+        -0.32346716175836215,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "chi2_total": 21325.219665592864,
+      "chi2_per_dof": 35.365206742276726,
+      "snapshot_mass_drift": 1.5019123595268284e-16,
+      "snapshot_energy_residual": 0.0035948601781563617,
+      "note": "M scaled by a constant: a time-rescaling of the truth"
+    }
+  },
+  "wrong_flux_form": {
+    "chi2_total": 188860.59165884857,
+    "chi2_per_dof": 313.20164454203746,
+    "snapshot_mass_drift": 0.00024038406932459273,
+    "snapshot_energy_residual": 0.0016433451274408541,
+    "note": "M * lap(mu) instead of div(M grad mu): non-conservative"
+  },
+  "sensitivity": {
+    "singular_values": [
+      2.5040751151020966,
+      1.5288552031259346,
+      1.3707454072127658,
+      0.9113582496039202,
+      0.6955603057355833,
+      0.5215322740029564,
+      0.445758405139679,
+      0.2526748290593119,
+      0.14966901707570598
+    ],
+    "sv_ratio": 0.05977017868715318
+  }
+}
