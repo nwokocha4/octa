@@ -1,6 +1,6 @@
 # Build status — heterogeneous-mobility inversion task
 
-**Last updated:** 2026-10-22 (evening: oracle=1, nop=0 through Harbor/Docker)
+**Last updated:** 2026-10-23 (oracle 5x repeat done: identical, no flakes)
 **State:** COMPLETE and validated end-to-end (see section 4). Oracle scores reward 1 through the full Harbor pipeline; null and wrong-flux submissions fail; thresholds set from measured separations. Nop scores reward 0. Remaining: oracle 5x repeat, a real agent trial, author fields, proposal rewrite, static checks.
 
 ---
