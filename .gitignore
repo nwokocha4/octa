@@ -6,3 +6,6 @@ __pycache__/
 # harbor run artifacts
 jobs/
 runs/
+
+# regenerable authoring scratch (re-run authoring/evidence/verifier_check.py)
+**/authoring/evidence/verifier_check_runs/

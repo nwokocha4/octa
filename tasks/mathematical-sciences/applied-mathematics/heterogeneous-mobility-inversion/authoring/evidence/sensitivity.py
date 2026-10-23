@@ -38,9 +38,26 @@ sys.path.insert(0, os.path.join(DATA, "mobility_solver"))
 
 import solver as S  # noqa: E402
 
+def _oracle_dir(which):
+    """Locate the oracle outputs: TEMP-based path first, then /tmp (POSIX).
+
+    The runs live wherever the shell that produced them put /tmp; on Windows
+    git-bash that is %TEMP%\\oracle_runs, which a native Python does not see
+    as /tmp/oracle_runs.  Check the Windows Temp locations first so the MAP/ML
+    entries are recorded on either platform instead of silently skipped.
+    """
+    for base in (os.environ.get("TEMP"), os.environ.get("TMP"), "/tmp"):
+        if not base:
+            continue
+        cand = os.path.join(base, "oracle_runs", which)
+        if os.path.isfile(os.path.join(cand, "theta.json")):
+            return cand
+    return None
+
+
 RUNS = {
-    "map": "/tmp/oracle_runs/map",
-    "ml": "/tmp/oracle_runs/ml",
+    "map": _oracle_dir("map"),
+    "ml": _oracle_dir("ml"),
 }
 
 
@@ -128,13 +145,14 @@ def main():
              "M scaled by a constant: a time-rescaling of the truth")
 
     for label, path in RUNS.items():
-        f = os.path.join(path, "theta.json")
-        if os.path.exists(f):
+        f = os.path.join(path, "theta.json") if path else None
+        if f is not None and os.path.exists(f):
             with open(f) as fh:
                 theta = np.array(json.load(fh)["theta"])
             evaluate(label, theta, f"reconstruction from solution/infer.py ({label})")
         else:
-            print(f"[cal] {label}: not available ({f} missing)")
+            print(f"[cal] {label}: not available "
+                  f"({'no oracle dir found' if f is None else f + ' missing'})")
 
     # --- the wrong flux form ------------------------------------------------
     class WrongModel(S.CHModel):

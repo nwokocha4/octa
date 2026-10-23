@@ -1,0 +1,255 @@
+{
+  "generated_at": "2026-10-23T10:56:00.412829+00:00",
+  "verifier": "tests\\test_state.py",
+  "thresholds": {
+    "CHI2_PER_DOF_MAX": 1.4,
+    "MASS_DRIFT_MAX": 1e-06,
+    "ENERGY_RESIDUAL_MAX": 0.05,
+    "FIELD_REL_L2_MAX": 0.005,
+    "dof": 603
+  },
+  "candidates": {
+    "truth": {
+      "note": "the generating coefficients",
+      "theta": [
+        -0.6382272176514099,
+        0.0,
+        -0.42160636565476156,
+        -0.40433395219795265,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "chi2_total": 588.082554813457,
+      "chi2_per_dof": 0.9752612849311062,
+      "g5_limit": 1.4,
+      "g5_pass": true,
+      "weighted_misfit": 851.0815390910509,
+      "mass_drift": 1.5019123595268287e-16,
+      "energy_residual": 0.002852769841982178,
+      "pytest": {
+        "returncode": 0,
+        "tests": {
+          "test_g1_required_arrays_present": "PASSED",
+          "test_g1_shapes_and_dtypes": "PASSED",
+          "test_g1_diagnostics_keys": "PASSED",
+          "test_g2_grid_matches_coefficients": "PASSED",
+          "test_g3_mobility_admissible": "PASSED",
+          "test_g5_withheld_prediction_accuracy": "PASSED",
+          "test_g6_reconstruction_conserves_mass": "PASSED",
+          "test_g4_submitted_field_matches_independent_resimulation": "PASSED",
+          "test_g4_submitted_prediction_conserves_mass": "PASSED",
+          "test_g4_energy_balance_residual": "PASSED",
+          "test_g4_reported_diagnostics_match_recomputation": "PASSED"
+        },
+        "passed": 11,
+        "total": 11,
+        "tail": "tests/test_state.py::test_g5_withheld_prediction_accuracy PASSED         [ 54%]\ntests/test_state.py::test_g6_reconstruction_conserves_mass PASSED        [ 63%]\ntests/test_state.py::test_g4_submitted_field_matches_independent_resimulation PASSED [ 72%]\ntests/test_state.py::test_g4_submitted_prediction_conserves_mass PASSED  [ 81%]\ntests/test_state.py::test_g4_energy_balance_residual PASSED              [ 90%]\ntests/test_state.py::test_g4_reported_diagnostics_match_recomputation PASSED [100%]\n\n============================= 11 passed in 8.89s =============================="
+      },
+      "verifier_pass": true
+    },
+    "constant_mobility": {
+      "note": "the trivial null: theta = 0",
+      "theta": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "chi2_total": 1009486.3916900097,
+      "chi2_per_dof": 1674.1067855555716,
+      "g5_limit": 1.4,
+      "g5_pass": false,
+      "weighted_misfit": 222535.30504189563,
+      "mass_drift": 1.5019123595268287e-16,
+      "energy_residual": 0.0041089808129308745,
+      "pytest": {
+        "returncode": 1,
+        "tests": {
+          "test_g1_required_arrays_present": "PASSED",
+          "test_g1_shapes_and_dtypes": "PASSED",
+          "test_g1_diagnostics_keys": "PASSED",
+          "test_g2_grid_matches_coefficients": "PASSED",
+          "test_g3_mobility_admissible": "PASSED",
+          "test_g5_withheld_prediction_accuracy": "FAILED",
+          "test_g6_reconstruction_conserves_mass": "PASSED",
+          "test_g4_submitted_field_matches_independent_resimulation": "PASSED",
+          "test_g4_submitted_prediction_conserves_mass": "PASSED",
+          "test_g4_energy_balance_residual": "PASSED",
+          "test_g4_reported_diagnostics_match_recomputation": "PASSED"
+        },
+        "passed": 10,
+        "total": 11,
+        "tail": "____________________ test_g5_withheld_prediction_accuracy _____________________\ntests\\test_state.py:199: in test_g5_withheld_prediction_accuracy\n    assert chi2 / dof <= CHI2_PER_DOF_MAX, (\nE   AssertionError: the submitted mobility does not reproduce the withheld measurements: weighted misfit 1.00949e+06 on 603 degrees of freedom (1674.1068 per dof, limit 1.4)\nE   assert (1009486.3916900097 / 603) <= 1.4\n=========================== short test summary info ===========================\nFAILED tests/test_state.py::test_g5_withheld_prediction_accuracy - AssertionE...\n======================== 1 failed, 10 passed in 10.00s ========================"
+      },
+      "verifier_pass": false
+    },
+    "scaled_M": {
+      "note": "M scaled by a constant: a time-rescaling of the truth",
+      "theta": [
+        -0.5105817741211279,
+        0.0,
+        -0.3372850925238093,
+        -0.32346716175836215,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "chi2_total": 21325.21966544229,
+      "chi2_per_dof": 35.36520674202702,
+      "g5_limit": 1.4,
+      "g5_pass": false,
+      "weighted_misfit": 6266.879452546944,
+      "mass_drift": 0.0,
+      "energy_residual": 0.003594860178140168,
+      "pytest": {
+        "returncode": 1,
+        "tests": {
+          "test_g1_required_arrays_present": "PASSED",
+          "test_g1_shapes_and_dtypes": "PASSED",
+          "test_g1_diagnostics_keys": "PASSED",
+          "test_g2_grid_matches_coefficients": "PASSED",
+          "test_g3_mobility_admissible": "PASSED",
+          "test_g5_withheld_prediction_accuracy": "FAILED",
+          "test_g6_reconstruction_conserves_mass": "PASSED",
+          "test_g4_submitted_field_matches_independent_resimulation": "PASSED",
+          "test_g4_submitted_prediction_conserves_mass": "PASSED",
+          "test_g4_energy_balance_residual": "PASSED",
+          "test_g4_reported_diagnostics_match_recomputation": "PASSED"
+        },
+        "passed": 10,
+        "total": 11,
+        "tail": "____________________ test_g5_withheld_prediction_accuracy _____________________\ntests\\test_state.py:199: in test_g5_withheld_prediction_accuracy\n    assert chi2 / dof <= CHI2_PER_DOF_MAX, (\nE   AssertionError: the submitted mobility does not reproduce the withheld measurements: weighted misfit 21325.2 on 603 degrees of freedom (35.3652 per dof, limit 1.4)\nE   assert (21325.21966544229 / 603) <= 1.4\n=========================== short test summary info ===========================\nFAILED tests/test_state.py::test_g5_withheld_prediction_accuracy - AssertionE...\n======================== 1 failed, 10 passed in 14.76s ========================"
+      },
+      "verifier_pass": false
+    },
+    "wrong_flux_form": {
+      "note": "M * lap(mu) instead of div(M grad mu): non-conservative",
+      "theta": [
+        -0.6382272176514099,
+        0.0,
+        -0.42160636565476156,
+        -0.40433395219795265,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "chi2_total": 188860.59166009948,
+      "chi2_per_dof": 313.2016445441119,
+      "g5_limit": 1.4,
+      "g5_pass": false,
+      "field_rel_l2_vs_verifier_resim": 0.03252093885020258,
+      "g4_limit": 0.005,
+      "mass_drift": 0.0002403840693238419,
+      "weighted_misfit": 18222.620693236157,
+      "energy_residual": 0.0016433451274359345,
+      "pytest": {
+        "returncode": 1,
+        "tests": {
+          "test_g1_required_arrays_present": "PASSED",
+          "test_g1_shapes_and_dtypes": "PASSED",
+          "test_g1_diagnostics_keys": "PASSED",
+          "test_g2_grid_matches_coefficients": "PASSED",
+          "test_g3_mobility_admissible": "PASSED",
+          "test_g5_withheld_prediction_accuracy": "PASSED",
+          "test_g6_reconstruction_conserves_mass": "PASSED",
+          "test_g4_submitted_field_matches_independent_resimulation": "FAILED",
+          "test_g4_submitted_prediction_conserves_mass": "FAILED",
+          "test_g4_energy_balance_residual": "PASSED",
+          "test_g4_reported_diagnostics_match_recomputation": "FAILED"
+        },
+        "passed": 8,
+        "total": 11,
+        "tail": "    assert rel <= DIAGNOSTIC_REL_TOL, (\nE   AssertionError: reported weighted_observation_misfit 18222.6 does not match the independently recomputed value 851.082\nE   assert 20.411133782431456 <= 0.05\n=========================== short test summary info ===========================\nFAILED tests/test_state.py::test_g4_submitted_field_matches_independent_resimulation\nFAILED tests/test_state.py::test_g4_submitted_prediction_conserves_mass - Ass...\nFAILED tests/test_state.py::test_g4_reported_diagnostics_match_recomputation\n======================== 3 failed, 8 passed in 15.05s ========================="
+      },
+      "verifier_pass": false
+    },
+    "map": {
+      "note": "reconstruction from solution/infer.py (map); artifacts copied verbatim from C:/Users/Hopewell/AppData/Local/Temp/oracle_runs/map",
+      "theta": [
+        -0.6412396441322191,
+        0.004059721634334719,
+        -0.42461688905848916,
+        -0.4138529445394182,
+        0.0035740575027150426,
+        -0.002432924056300772,
+        -0.009522413721961148,
+        -0.0003692800670659795,
+        -0.005973666154123633
+      ],
+      "chi2_total": 613.045596157408,
+      "chi2_per_dof": 1.016659363445121,
+      "g5_limit": 1.4,
+      "g5_pass": true,
+      "pytest": {
+        "returncode": 0,
+        "tests": {
+          "test_g1_required_arrays_present": "PASSED",
+          "test_g1_shapes_and_dtypes": "PASSED",
+          "test_g1_diagnostics_keys": "PASSED",
+          "test_g2_grid_matches_coefficients": "PASSED",
+          "test_g3_mobility_admissible": "PASSED",
+          "test_g5_withheld_prediction_accuracy": "PASSED",
+          "test_g6_reconstruction_conserves_mass": "PASSED",
+          "test_g4_submitted_field_matches_independent_resimulation": "PASSED",
+          "test_g4_submitted_prediction_conserves_mass": "PASSED",
+          "test_g4_energy_balance_residual": "PASSED",
+          "test_g4_reported_diagnostics_match_recomputation": "PASSED"
+        },
+        "passed": 11,
+        "total": 11,
+        "tail": "tests/test_state.py::test_g5_withheld_prediction_accuracy PASSED         [ 54%]\ntests/test_state.py::test_g6_reconstruction_conserves_mass PASSED        [ 63%]\ntests/test_state.py::test_g4_submitted_field_matches_independent_resimulation PASSED [ 72%]\ntests/test_state.py::test_g4_submitted_prediction_conserves_mass PASSED  [ 81%]\ntests/test_state.py::test_g4_energy_balance_residual PASSED              [ 90%]\ntests/test_state.py::test_g4_reported_diagnostics_match_recomputation PASSED [100%]\n\n============================= 11 passed in 7.73s =============================="
+      },
+      "verifier_pass": true
+    },
+    "ml": {
+      "note": "reconstruction from solution/infer.py (ml); artifacts copied verbatim from C:/Users/Hopewell/AppData/Local/Temp/oracle_runs/ml",
+      "theta": [
+        -0.6425194510900584,
+        0.004833083494415159,
+        -0.42591938241921773,
+        -0.41495764988244527,
+        0.004404897303075774,
+        -0.0029884668026792095,
+        -0.010635680497875796,
+        5.705210968762462e-05,
+        -0.006431730723768676
+      ],
+      "chi2_total": 614.3248260169534,
+      "chi2_per_dof": 1.0187808059982644,
+      "g5_limit": 1.4,
+      "g5_pass": true,
+      "pytest": {
+        "returncode": 0,
+        "tests": {
+          "test_g1_required_arrays_present": "PASSED",
+          "test_g1_shapes_and_dtypes": "PASSED",
+          "test_g1_diagnostics_keys": "PASSED",
+          "test_g2_grid_matches_coefficients": "PASSED",
+          "test_g3_mobility_admissible": "PASSED",
+          "test_g5_withheld_prediction_accuracy": "PASSED",
+          "test_g6_reconstruction_conserves_mass": "PASSED",
+          "test_g4_submitted_field_matches_independent_resimulation": "PASSED",
+          "test_g4_submitted_prediction_conserves_mass": "PASSED",
+          "test_g4_energy_balance_residual": "PASSED",
+          "test_g4_reported_diagnostics_match_recomputation": "PASSED"
+        },
+        "passed": 11,
+        "total": 11,
+        "tail": "tests/test_state.py::test_g5_withheld_prediction_accuracy PASSED         [ 54%]\ntests/test_state.py::test_g6_reconstruction_conserves_mass PASSED        [ 63%]\ntests/test_state.py::test_g4_submitted_field_matches_independent_resimulation PASSED [ 72%]\ntests/test_state.py::test_g4_submitted_prediction_conserves_mass PASSED  [ 81%]\ntests/test_state.py::test_g4_energy_balance_residual PASSED              [ 90%]\ntests/test_state.py::test_g4_reported_diagnostics_match_recomputation PASSED [100%]\n\n============================= 11 passed in 7.60s =============================="
+      },
+      "verifier_pass": true
+    }
+  }
+}
