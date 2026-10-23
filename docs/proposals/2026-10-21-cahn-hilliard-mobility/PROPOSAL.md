@@ -5,15 +5,16 @@ review_verdict: Accept
 date: 2026-10-21
 category: Science
 sub_category: Applied Mathematics
-revision: v1
+revision: v2
 ---
 
 # Reconstruct a heterogeneous mobility field from sparse, noisy phase-separation imaging
 
-> **Draft v1.** Marked `[PILOT-n]` items are quantities that must be fixed by the pilot study
-> described in §5.7 and `NOTES.md` before submission; they are placeholders, not measurements. Every
-> other number here is a design decision, not an estimate. Review this against `REVIEW.md` (the v0
-> evaluation) — this revision applies FIX 1–FIX 8.
+> **Draft v2.** All quantities are measured from the built task (the pilot study is complete and
+> recorded in the task's `authoring/evidence/calibration.json`). v1 is preserved as
+> `PROPOSAL-v1.md`. This revision corrects three v1 claims the measurements overturned: (a) the
+> prior-shrinkage difficulty story, (b) the adjoint-method solution language, (c) the energy-gate
+> flux-form claim.
 
 ---
 
@@ -86,9 +87,11 @@ not incidental:
   the field, and part of the field lies in a region the optics cannot reach well. Some directions of the
   mobility field are therefore nearly invisible in some parts of the domain and well constrained in
   others — spatially varying observability, not a uniform one.
-- **A genuinely ill-posed problem.** Nine mobility coefficients, four observation times, and a few
-  thousand correlated sensor pixels is enough to *fit* but not to *determine*: the noise pushes the
-  estimate along directions the data barely constrain.
+- **An unevenly constrained problem.** Nine mobility coefficients, four observation times, and
+  804 correlated sensor readings. The observation operator's sensitivity spans a factor of fifty
+  across directions (singular values 3413 down to 66 at the solution, condition number ~51):
+  some directions move the prediction sharply while the weakest tolerates large moves. The noise
+  pushes the estimate hardest exactly where the data constrain least.
 
 ### 2c. Characteristic wrong answers, and the gate that catches each
 
@@ -97,8 +100,8 @@ different gate, so no single error is silently absorbed.
 
 | # | Wrong answer | Caught by |
 |---|---|---|
-| (i) | Uses the non-conservative flux `M∇²μ` (or writes `∂c/∂t = M(x)∇²μ` for a spatially varying `M`) instead of `∇·(M∇μ)`. | **G6** (mass drift) — and, more sharply, **G7**: the free-energy dissipation law `dF/dt = −∫M|∇μ|²` holds *only* in the divergence form, so the non-conservative flux violates the energy balance at O(1), not at solver-tolerance size. |
-| (ii) | Uses the wrong free energy `f(c)` — a symmetric double well against a single-well or a linearized one, or the wrong `κ`. | **G5** (prediction) and **G7**: wrong `κ` changes the interface width and therefore the coarsening rate, which shows up in the withheld-time prediction. |
+| (i) | Uses the non-conservative flux `M∇²μ` (or writes `∂c/∂t = M(x)∇²μ` for a spatially varying `M`) instead of `∇·(M∇μ)`. | **G4** (field agreement: the wrong-form trajectory differs by 2.5–3.9% relative L2, far above the 5e-3 bound), **G5** (χ²/dof 313 vs limit 1.4), and **G6** (mass drift 2.4e-4 vs 1e-6 bound). Tellingly *not* the energy-balance gate: truth and wrong form both sit at ~1e-3 there, so the energy residual is a sanity check, not the discriminator. |
+| (ii) | Uses the wrong free energy `f(c)` — a symmetric double well against a single-well or a linearized one, or the wrong `κ`. | **G5**: wrong `κ` changes the interface width and therefore the coarsening rate, which shows up in the withheld-time prediction. |
 | (iii) | Treats the observation noise as white — diagonal weights, or unweighted least squares — instead of using the supplied correlation structure. | **G5**. Correlated observations are redundantly weighted, so an unweighted fit chases the noise in the well-covered region and misestimates where coverage is sparse. The error is invisible in the training misfit and visible only in the prediction. |
 | (iv) | Submits a constant mobility (`θ = 0`), i.e. the trivial null. | **G5**. This is the benchmark's primary discriminator and it is calibrated to fail (§5.5). |
 | (v) | Uses an unconstrained or sign-defective parameterization, yielding locally negative or non-finite mobility. | **G3** (admissibility bounds). |
@@ -109,30 +112,37 @@ different gate, so no single error is silently absorbed.
 
 The task has few steps and no volume: read a handful of supplied arrays, write a forward-model wrapper
 (the solver is provided), set up a nonlinear least-squares or Bayesian inverse problem, and validate. The
-difficulty is not the number of steps — it is that **the training data does not determine the answer**,
-and the agent has to work out which parts of its own fit are real. That is a judgment call, not an
-implementation grind. The task is not hard because it requires knowing one obscure fact, and it is not
-adversarial: there is no trick, no misdirection, and no answer that is only findable by guessing the
-reviewer's intent.
+difficulty is not the number of steps — it is that **the observations constrain the answer unevenly
+across directions**, and the agent has to work out which parts of its own fit are real. That is a
+judgment call, not an implementation grind. The task is not hard because it requires knowing one obscure
+fact, and it is not adversarial: there is no trick, no misdirection, and no answer that is only findable
+by guessing the reviewer's intent.
 
 ### 2e. Difficulty calibration
 
 The difficulty dial is the number of mobility degrees of freedom, and it is set deliberately:
 
 - **Nine coefficients** in the declared basis. Global or derivative-free search over a 9-dimensional
-  space is computationally prohibitive inside the agent budget: a single forward evaluation costs
-  `[PILOT-1]` seconds, and a competent global optimizer needs on the order of 10⁴–10⁵ evaluations, which
-  is 10–100× the budget. Gradient-based inference with sensitivities or adjoints is the viable route,
-  which is the intended solution and is not forced by fiat — it is forced by cost.
-- **The information is genuinely degraded.** We report the ratio of the smallest to largest eigenvalue of
-  the Gauss–Newton (Fisher) information matrix for `θ` at the true solution `[PILOT-2]`, and the
-  posterior predictive spread at the withheld times relative to the observational noise
-  `[PILOT-3]`. The design target is a conditioning ratio small enough that an unregularized maximum
-  likelihood reconstruction is visibly worse at prediction than a prior-regularized one, and large enough
-  that the prior-regularized reconstruction is still informative.
-- **The nulls separate.** The margin between the constant-mobility baseline and the correct
-  reconstruction on the gated prediction metric is `[PILOT-4]`, and the acceptance thresholds are set so
-  the null fails by a wide margin while the correct answer passes with margin (§5.5).
+  space is computationally prohibitive inside the agent budget: a single forward evaluation costs ~21
+  seconds, and a competent global optimizer needs on the order of 10⁴–10⁵ evaluations, which is
+  10–100× the budget. Gauss-Newton inference with forward sensitivities is the viable route, which is
+  the intended solution and is not forced by fiat — it is forced by cost. (A discrete adjoint was
+  derived and verified operator-by-operator during development, then measured to blow up 8000× on the
+  real problem: for a spinodally growing forward map, backward propagation amplifies through
+  non-normality even where forward sensitivities are modest. The task must not push agents toward
+  adjoint methods.)
+- **The information is unevenly distributed.** The Jacobian of the observation operator at the solution
+  has singular values from 3413 down to 66 (condition number ~51): the strongest direction moves the
+  withheld-time prediction by +2.7 χ²/dof for a 0.01 step, while the weakest tolerates large moves.
+  A correction to the v1 design story, stated plainly because the measurement overturned it: the prior
+  is *irrelevant* at this noise level — the maximum-likelihood fit (χ²/dof 1.019) agrees with the
+  MAP fit (1.017) to three decimals, and all nine directions are likelihood-dominated. The difficulty
+  is not "regularize rather than chase the likelihood"; it is the correlation structure (an unweighted
+  fit is the calibrated failing baseline) and the forward-model fidelity (the flux-form trap).
+- **The nulls separate.** Measured χ²/dof on the gated prediction metric (dof = 603): truth 0.975,
+  MAP 1.017, ML 1.019, scaled mobility 35.4, wrong flux form 313.2, constant mobility 1674.1. The
+  acceptance threshold (1.4) sits ~40% above the oracle and two orders of magnitude below the weakest
+  rejection baseline (§5e).
 
 ### 2f. Expert effort
 
@@ -156,21 +166,24 @@ directions to trust.
 
 A competent practitioner would: reconstruct the observation operator from the supplied files (sensor
 mask, blur kernel, covariance factor); implement the likelihood under the supplied covariance; add the
-supplied prior on the mobility coefficients as a penalty; and run a gradient-based nonlinear
-least-squares or MAP optimization, using finite-difference sensitivities or an adjoint formulation to
-keep the cost per iteration tractable. They would then *look at the profile of the solution* — which
-coefficients moved, which barely moved, and in which directions the curvature is smallest — and use that
-to decide how much to shrink. Finally they would test the reconstruction by simulating forward to the
-withheld times and comparing against the withheld measurements.
+supplied prior on the mobility coefficients as a penalty; and run Gauss-Newton nonlinear least-squares
+with forward-difference sensitivities (ten forward passes per iteration — affordable and exact to the
+difference step, with none of the adjoint's instability on a growing forward map). They would then
+*look at the profile of the solution* — which coefficients moved, which barely moved, and in which
+directions the curvature is smallest — and use that to judge which components the data support. Finally
+they would test the reconstruction by simulating forward to the withheld times and comparing against the
+withheld measurements.
 
 The key insight, which is what separates a good solution from a brute-force one, is that **the
-coefficients are not equally recoverable, and the way to handle the poorly-constrained ones is not to
-ignore the data but to regularize toward the prior rather than toward an unconstrained optimum.** The
-maximum-likelihood reconstruction of a spatial coefficient field from sparse, correlated, unevenly
-covered observations is systematically wrong in exactly the directions the data do not constrain, and it
-is systematically wrong *more* when the correlation is ignored — because unweighted fitting over-counts
-the redundant information in the well-covered region. The prior-shrunk estimate is worse on the training
-misfit and better on the prediction. Recognizing that trade-off and acting on it is the whole task.
+observations must be weighted by the supplied correlation structure, and the forward model must be the
+conservative one.** An unweighted fit over-counts the redundant information in the well-covered region
+and misestimates where coverage is sparse — an error invisible in the training misfit and visible only
+in the prediction. And the flux must be written in divergence form: the non-conservative form is a
+perfectly ordinary-looking diffusion equation that silently drops the `grad(M)` term. Recognizing those
+two requirements and acting on them is the whole task. (What the task is *not* about: prior shrinkage.
+The prior is supplied and used, but the measurement shows all nine directions are likelihood-dominated,
+so the MAP/ML distinction does not discriminate. The proposal states this plainly because an earlier
+draft claimed otherwise.)
 
 The task does not require this method. Any route that produces a stable, physically admissible
 reconstruction that predicts well is accepted — a Bayesian formulation, a Tikhonov-regularized
@@ -178,12 +191,11 @@ least-squares fit, or an ensemble/MCMC approach would all work. No particular al
 solver is required, and the instruction says so.
 
 **Solvability argument.** This problem shape is standard and has been solved many times: nonlinear
-ill-posed coefficient estimation for a PDE-constrained forward model, with a Gaussian prior and a
-Gaussian likelihood, is the canonical Bayesian inverse problem (Stuart 2010; Stuart & Stedinger 1995),
-and the spatial-coefficient case with a smoothness/GP prior is the canonical *degenerate* case
-(the null space of the adjoint is where the difficulty lives). Applied to phase-field models, the
-forward model is a textbook free-energy relaxation. Nothing here is an unsolved research problem; the
-composition is new but each piece is routine for the right practitioner.
+coefficient estimation for a PDE-constrained forward model, with a Gaussian prior and a Gaussian
+likelihood, is the canonical Bayesian inverse problem (Stuart 2010), and the reference oracle (seven
+Gauss-Newton iterations, ~7 minutes) converges from the trivial start to χ²/dof 1.017 against a truth
+of 0.975. Nothing here is an unsolved research problem; the composition is new but each piece is routine
+for the right practitioner.
 
 ---
 
@@ -216,10 +228,10 @@ composition is new but each piece is routine for the right practitioner.
   **We ship the solver deliberately.** The task is hard because the inverse problem is hard, not because
   the fourth-order PDE is annoying to implement. If the agent had to write the solver, the scientific
   content would drown under numerical-methods busywork and the benchmark would measure something else.
-- **Compute:** `[PILOT-5]` CPU, `[PILOT-5]` GB RAM, no GPU. One forward evaluation to the prediction
-  times costs `[PILOT-1]` seconds, so a gradient-based method with a few dozen iterations and a
-  9-parameter finite-difference Jacobian is comfortably inside the budget, while a global search over
-  the same space is not (§2e).
+- **Compute:** 2 CPU, 4 GB RAM, no GPU. One forward evaluation to the prediction times costs ~21
+  seconds, so a Gauss-Newton method with a few dozen iterations and a 9-parameter finite-difference
+  Jacobian (~1 minute per iteration, ~7 minutes total for the reference oracle) is comfortably inside
+  the budget, while a global search over the same space is not (§2e).
 - **Network:** open for the agent phase (it may install packages). The verifier phase has none.
 
 ---
@@ -235,8 +247,8 @@ The agent must produce, in `/app/output`:
 | Array | Shape | Meaning |
 |---|---|---|
 | `mobility_coefficients` | `(9,)` float64 | `θ` in the declared basis order (`basis.npz`) |
-| `mobility_grid` | `(128, 128)` float64 | `M(x)` evaluated on the declared grid |
-| `predicted_concentration` | `(3, 128, 128)` float64 | The concentration field at the three prediction times, in the declared order |
+| `mobility_grid` | `(48, 48)` float64 | `M(x)` evaluated on the declared grid |
+| `predicted_concentration` | `(3, 48, 48)` float64 | The concentration field at the three prediction times, in the declared order |
 
 **`diagnostics.json`**
 
@@ -281,7 +293,7 @@ PASS requires **all** of:
   declared grid from the supplied basis, to a tight relative tolerance. (Closes the loophole of
   submitting a good grid with meaningless coefficients, or the reverse.)
 - **G3 · Admissibility.** `min(mobility_grid) > 0`, and the mobility field lies within the declared
-  admissible range `[PILOT-6] · M₀` to `[PILOT-6] · M₀`.
+  admissible range 1e-3 · M₀ to 1e3 · M₀.
 - **G4 · Physical consistency of the submitted prediction.** The agent's `predicted_concentration`
   satisfies the mass-conservation and free-energy-monotonicity conditions to the stated tolerances, and
   the agent's three reported diagnostics agree with the verifier's independent recomputation from the
@@ -325,13 +337,14 @@ baselines, each of which is run against each gated instance separately:
 | Constant mobility (`θ = 0`) | **fails G5** | The trivial null; the simplest admissible reconstruction |
 | Prior mean (`θ = 0`, same as above under a zero-mean prior) | fails G5 | The estimator a lazy or over-regularized agent produces |
 | Unweighted least squares (diagonal weights, no covariance) | **fails G5**, passes G4 | The characteristic error (iii): fits the training data, predicts badly |
-| Maximum likelihood, no prior | **fails G5** | The characteristic error: overfits along the weakly-constrained directions |
+| Maximum likelihood, no prior | **passes all gates** (χ²/dof 1.019 vs MAP 1.017) | Honestly reported: at this noise level the prior does not discriminate, so ML is a *passing* baseline, not a rejection baseline. The discrimination the task offers is correlation-weighting (unweighted fails) and forward-model fidelity (wrong flux fails), not regularization |
 | Oracle (true `θ*`, and the MAP reconstruction) | **passes all gates** with margin | Establishes solvability |
 | The agent's own `predicted_concentration` re-simulated by the verifier | agrees within the solver tolerance | Confirms the agent's field is a genuine simulation of its stated reconstruction |
 
-Acceptance criteria for the calibration itself: the constant-mobility baseline must fail G5 by at least
-`[PILOT-7]`× the gate threshold, and the oracle must pass G5 with at least `[PILOT-8]`× margin. A
-baseline that fails by a hair is a calibration failure, not a passing task.
+Acceptance criteria for the calibration itself, all met: the constant-mobility baseline fails G5 by
+~1200× the gate threshold (1674.1 vs limit 1.4), the weakest rejection baseline (scaled mobility,
+35.4) fails by ~25×, and the oracle passes with ~40% margin (1.017 vs 1.4). A baseline that fails by
+a hair would be a calibration failure, not a passing task — that is not what happened.
 
 ### 5f. What the agent cannot reach
 
@@ -352,20 +365,21 @@ baseline that fails by a hair is a calibration failure, not a passing task.
 mixture with a regularized double-well free energy, in the hydrodynamic-theory tradition where the
 transport coefficient enters as a spatially varying Onsager mobility. The inference problem is the
 canonical Bayesian inverse problem for a partially observed, nonlinear, spatially varying parameter
-(stuart 2010; Stuart & Stedinger 1995), and its difficulty is the classical one: the adjoint's null
-space is where the data are silent, and a prior is what makes a stable reconstruction possible. The
-observational model — a point-spread-limited, heteroscedastic, correlated-noise image of a phase-separating
-sample — is what in-situ fluorescence or phase-contrast imaging of a blend actually delivers, including
-its uneven coverage.
+(Stuart 2010), and its difficulty is the classical one: the observations constrain some directions
+sharply and others barely, and the estimator must respect that anisotropy. The observational model —
+a point-spread-limited, heteroscedastic, correlated-noise image of a phase-separating sample — is what
+in-situ fluorescence or phase-contrast imaging of a blend actually delivers, including its uneven
+coverage.
 
 **Distinctness from merged tasks.** The closest tasks in the benchmark are `rbc-temperature-inference`
 (forward-model parameter inference in Rayleigh–Bénard convection), `traffic-flux-inversion`,
 `koopman-mfg-id`, `ode-law-discovery`, `certified-sparse-regression`, and `localized-sspd-solver`. This
 task differs on four axes at once: the unknown is a **spatially heterogeneous field**, not a lumped
 parameter or a sparse coefficient vector; the evidence is **multi-time**, with the discriminating
-evidence held out at *later* times rather than fitted; the explicit difficulty is **degenerate
-directions and identifiability**, not sparsity; and the physical constraint that does the verifying is a
-**conservation law with a free-energy dissipation identity**, not a generic regularizer. It also differs
+evidence held out at *later* times rather than fitted; the explicit difficulty is **unevenly
+constrained directions and identifiability**, not sparsity; and the physical constraint that does the
+verifying is a **conservation law with a free-energy dissipation identity**, not a generic regularizer.
+It also differs
 from `rbc-temperature-inference` in that the quantity inverted is a field with a positivity constraint,
 the noise is spatially correlated rather than assumed independent, and the predictive gate is a
 withheld-time measurement rather than a diagnostic.
@@ -376,18 +390,18 @@ withheld-time measurement rather than a diagnostic.
 
 | Criterion | Judgement | Weakest point |
 |---|---|---|
-| Verifiable | Accept | The verifier re-simulates a PDE; float sensitivity of that re-simulation is mitigated by generous, noise-calibrated thresholds (§5c) rather than eliminated |
-| Well-specified | Accept | The diagnostic definitions and the supplied basis must be written out in full in `instruction.md`; the generative model is now declared, which was the v0 hole |
-| Solvable | Accept | Solvability depends on the pilot's `[PILOT-2]`/`[PILOT-3]` numbers confirming the MAP reconstruction beats the constant baseline by the required margin |
-| Difficult | Uncertain | The 9-dimensional setting plus cost of forward evaluation is the mechanism; it must be *confirmed* by the pilot that global search is out of budget and that an unregularized fit fails the gate |
+| Verifiable | Accept | The verifier re-simulates a PDE; float sensitivity is mitigated by noise-calibrated thresholds with 40%+ oracle margin (§5e) rather than eliminated; 5/5 oracle repeats identical |
+| Well-specified | Accept | The diagnostic definitions and the supplied basis are written out in full in `instruction.md`; the generative model is declared (§5b) |
+| Solvable | Strong Accept | MAP oracle passes 11/11 through the full Harbor pipeline (reward 1); nop scores 0; deps are pinned PyPI packages; data is generated in-repo |
+| Difficult | Accept | 9-dimensional global search is 10–100× over budget by measured forward cost (~21 s); the null separates by 1200×; the correlation-weighting and flux-form traps are the calibrated discriminators. Honestly noted: the prior-shrinkage story did not survive measurement (ML passes), so the difficulty rests on weighting + fidelity, which is narrower than v1 claimed |
 | Scientifically grounded | Accept | Anchored to phase-field literature and Bayesian inverse-problem literature in §6 |
-| Scope | Accept | Justification now argues against the alternative reading rather than asserting the category |
+| Scope | Accept | Justification argues against the alternative reading rather than asserting the category |
 | Outcome-verified | Accept | The only process-adjacent constraint is the declared output format, which the rubric permits |
 
-**Decision-Reason:** The v0 holes are closed — the generative model is declared, the difficulty dial and
-its cost model are set, the failure modes are mapped to gates, and the category justification defends
-against the obvious alternative — leaving one open item: the pilot study must confirm the difficulty
-calibration and the null separation.
+**Decision-Reason:** The pilot is complete and every number is measured: the nulls separate by orders
+of magnitude, the oracle passes with margin through the full pipeline, and the three v1 claims the
+measurements overturned (prior-shrinkage difficulty, adjoint solution language, energy-gate flux-form
+claim) are corrected in the text rather than hidden.
 
 **Decision:** Accept
 
@@ -395,23 +409,28 @@ calibration and the null separation.
 
 ## 8. Questions a reviewer will ask
 
-1. **How do you know this is identifiable enough to be solvable?** Because the prior is supplied and the
-   problem is a standard Bayesian inverse problem; the pilot reports the conditioning of the information
-   matrix at the truth (`[PILOT-2]`) and the posterior predictive spread (`[PILOT-3]`).
-2. **What happens if the agent just optimizes the training misfit?** It gets a reconstruction that passes
-   G4 and fails G5 — that is the calibrated maximum-likelihood baseline (§5e).
-3. **Does the threshold actually reject the trivial answers?** Yes, and the calibration *requires* a
-   minimum separation (`[PILOT-7]`), so a marginal separation is treated as a pilot failure rather than
-   shipped.
+1. **How do you know this is identifiable enough to be solvable?** The Jacobian at the solution has
+   condition number ~51 (singular values 3413 down to 66) — uneven, not degenerate — and the MAP oracle
+   recovers the generating coefficients to three decimals and predicts at χ²/dof 1.017 against a truth
+   of 0.975.
+2. **What happens if the agent just optimizes the training misfit?** With the supplied covariance
+   weighting, that *is* essentially the MAP solution, and it passes. Without the covariance weighting
+   (diagonal weights), it fits the training data and fails G5 — that is the calibrated unweighted
+   baseline. (An earlier draft claimed the unregularized fit fails; the measurement says otherwise, and
+   §5e reports it honestly.)
+3. **Does the threshold actually reject the trivial answers?** The constant null fails by ~1200×, the
+   weakest rejection baseline by ~25×. A marginal separation would have been a pilot failure — it is not
+   what happened.
 4. **Is this a real workflow or a course project?** A real workflow — inferring spatially varying
    transport properties from in-situ imaging of phase separation (§2a, §6).
-5. **Could a generalist solve it with generic skills?** Generic curve-fitting would produce the
-   maximum-likelihood baseline, which fails the predictive gate. Passing requires reasoning about
-   regularization and identifiability.
+5. **Could a generalist solve it with generic skills?** Generic curve-fitting without the correlation
+   structure produces the unweighted baseline, which fails the predictive gate; generic PDE-solving with
+   the wrong flux form fails G4/G5/G6. Passing requires reasoning about weighting and fidelity.
 6. **Why Applied Mathematics and not Materials Science?** §1 argues the tested competencies, not the
    substrate.
-7. **How long does one forward evaluation take, and can the method finish inside the budget?**
-   `[PILOT-1]`, `[PILOT-5]`. This is the one number that most constrains the task and it is a pilot
-   output.
-8. **Which criterion are you weakest on?** Difficult — because the calibration is asserted rather than
-   measured until the pilot runs.
+7. **How long does one forward evaluation take, and can the method finish inside the budget?** ~21
+   seconds; the reference oracle converges in 7 Gauss-Newton iterations (~7 minutes) inside an 8-hour
+   agent budget, on 2 CPUs and 4 GB RAM with no GPU.
+8. **Which criterion are you weakest on?** Difficult — because the difficulty is narrower than v1 claimed:
+   it rests on correlation-weighting and forward-model fidelity, not on regularization. The measurement
+   is honest about that, and the threshold margins carry the claim.

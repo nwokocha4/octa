@@ -7,8 +7,10 @@ rejection patterns compound across submissions instead of resetting each time.
 docs/proposals/
 ├── README.md                         ← this file
 └── 2026-10-21-cahn-hilliard-mobility/
-    ├── PROPOSAL.md                   ← the text submitted to the form (current revision)
+    ├── PROPOSAL.md                   ← the text submitted to the form (current revision, v2)
+    ├── PROPOSAL-v1.md                ← superseded v1 (placeholders, pre-pilot)
     ├── PROPOSAL-v0.md                ← superseded draft, kept for history
+    ├── PROPOSAL.txt                  ← plain-text export of v1 (for the form)
     ├── REVIEW.md                     ← rubric evaluation + ranked fixes
     └── NOTES.md                      ← internal: pilot study plan, open design questions
 ```
@@ -64,4 +66,4 @@ why it matters*. A review that only judges is half a review; the fixes are the d
 
 | Date | Proposal | Category / Sub-category | Verdict | Status |
 |---|---|---|---|---|
-| 2026-10-21 | Reconstruct a heterogeneous mobility field from sparse, noisy phase-separation imaging | Science / Applied Mathematics | Accept | draft (v1) |
+| 2026-10-21 | Reconstruct a heterogeneous mobility field from sparse, noisy phase-separation imaging | Science / Applied Mathematics | Accept | draft (v2, pilot complete) |
