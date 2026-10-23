@@ -16,14 +16,18 @@ separation at three later times that were not observed.
 
 ## Difficulty
 
-The data do not determine the answer. Nine mobility coefficients are estimated from four
-snapshots of a partially observed, spatially heterogeneous, correlated-noise system, and the
-sensitivity of the observation operator to those coefficients is strongly anisotropic: a few
-directions are pinned by the observations and several are only weakly constrained. An
-unregularised fit reproduces the training misfit while placing large, wrong structure in exactly
-the weakly-constrained directions, and that structure shows up in the later times the experiment
-never reached. Distinguishing "supported by the data" from "fits the noise" is the whole
-difficulty, and it is a judgment call about identifiability rather than an implementation grind.
+The observations constrain the answer unevenly. Nine mobility coefficients are estimated from
+four snapshots of a partially observed, spatially heterogeneous, correlated-noise system, and the
+sensitivity of the observation operator to those coefficients spans a factor of fifty: some
+directions move the prediction sharply (a 0.01 step along the strongest costs +2.7 chi^2/dof)
+while the weakest tolerates large moves. The natural failure is to weight the correlated
+observations as if they were independent, which over-counts the redundant information in the
+well-covered region and misestimates where coverage is sparse -- an error invisible in the
+training misfit and visible only in the withheld-time prediction. Distinguishing "supported by
+the data" from "fits the noise" is the whole difficulty, and it is a judgment call about
+identifiability rather than an implementation grind. (Measured, not asserted: the
+maximum-likelihood fit agrees with the prior-regularised fit here, so the difficulty is the
+correlation structure and the forward-model fidelity, not the choice of regulariser.)
 
 A second, sharper trap sits underneath. The forward model is a fourth-order conservation law
 with a spatially varying coefficient, and the correct form of its flux is a *divergence*:
@@ -38,14 +42,20 @@ than leaving the agent to write one.
 
 `solution/infer.py` builds the observation operator from the supplied files, forms the
 covariance-weighted misfit of the supplied observations under the supplied prior, and minimises
-it with a gradient-based least-squares method (`scipy.optimize.least_squares`, finite-difference
-Jacobian). The forward model is the supplied `mobility_solver` package; nothing about the
-reconstruction is hard-coded. The result is the maximum-a-posteriori mobility field, from which
-the solution simulates forward to the prediction times and reports the three diagnostics.
+it with Gauss-Newton (`scipy.optimize.least_squares`, trust-region reflective, forward-difference
+Jacobian: ten forward passes per iteration). The forward model is the supplied `mobility_solver`
+package; nothing about the reconstruction is hard-coded. The result is the maximum-a-posteriori
+mobility field, from which the solution simulates forward to the prediction times and reports the
+three diagnostics. A deliberately non-adjoint method: for a spinodally growing forward map the
+backward-propagated adjoint is corrupted by non-normal amplification even where forward
+sensitivities are modest (measured 8000x blow-up), while forward sensitivities stay faithful.
 
-The key insight the solution relies on: the prior is part of the problem statement, and the
-directions the data do not constrain should be shrunk toward it rather than left at whatever
-value maximises the training misfit.
+The key insight the solution relies on: the observations must be weighted by the supplied
+correlation structure, not treated as independent -- an unweighted fit chases redundant information
+in the well-covered region and misestimates where coverage is sparse, which is invisible in the
+training misfit and visible only in the prediction. The prior itself turned out to be irrelevant at
+this noise level (the maximum-likelihood fit agrees with the MAP fit to three decimals); what
+matters is the covariance weighting and the fidelity of the forward model.
 
 ## Verification
 
